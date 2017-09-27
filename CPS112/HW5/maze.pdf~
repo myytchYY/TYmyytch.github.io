@@ -1,4 +1,0 @@
-a)
-When using Stack, the solver will track through one direction first then turn to another direction. If the goal is right in the path of the first direction, Stack will be very efficient. 
-
-When using Queue, the solver will check one step further for every possible direction. If the goal is close to the start location but not on Stack's first direction(and the first direction's path is very long), the Queue will be more efficient.
