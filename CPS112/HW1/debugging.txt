@@ -1,0 +1,29 @@
+1.
+GuessingGame.java:23: error: cannot find symbol
+		String quit = scanner.nextString();
+		                     ^
+  symbol:   method nextString()
+  location: variable scanner of type Scanner
+1 error
+
+  Solution: Googled out that there is no "nextString()" method in scanner. Corrected it by changing it to "nextLine()".
+
+2. 
+Had trouble converting a string to integer as I use "nextLine()" which read the input as a string.
+
+    Solution: Googled out a method "Integer.parseInt(<string>)".
+3.
+Error when comparing two strings.
+
+    Solution: Used “equals()” instead of “==”.
+
+4.
+Error when trying to read the length of a number using “length()”.
+
+    Solution: Googled that “length()” only works on strings. So converted the number to string first as “toString.length()”.(Didn’t work, “Long cannot be dereferenced”) Then, add new string as StringIsbn which converts the long to string first as “Long.toString(<long>)” then use “StringIsbn.length()” to get the length of the input. Worked.
+
+5.
+Can’t call the method after an invalid isbn and entering “y” for a new isbn.
+
+    Solution1: took out the scanner for isbn from the while loop, call the method correctly but ended up with infinite loop;
+    Solution2: (got help from classmate): added “Enter = false” after calling the methods in the while loop. Worked!

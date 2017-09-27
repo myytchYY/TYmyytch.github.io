@@ -1,0 +1,41 @@
+1.
+Having trouble understand how to use the variable modCOunt because of its definition.
+
+Solution:(Prof. Weaver) Just use it the same as using the variable "numbOfItem" in the lab.
+
+
+2.
+ error: name clash: indexOf(T) in ArrayBackedList and indexOf(Object) in AbstractList have the same erasure, yet neither overrides the other
+	public int indexOf (T item)
+	           ^
+  where T is a type-variable:
+    T extends Object declared in class ArrayBackedList
+ArrayBackedList.java:112: error: method does not override or implement a method from a supertype
+
+Solution: Changed T to Object.
+
+3.
+error: cannot find symbol
+    { return SimpleArrayIterator (this);     }
+              ^
+  symbol:   method SimpleArrayIterator(SimpleArrayList)
+  location: class SimpleArrayList
+
+Solution: add “new” after return.
+
+4.
+SimpleArrayList.java:80: error: no suitable method found for add(Object)
+	    copyList.add(iter.previous());
+	            ^
+    method SimpleArrayList.add(int,int) is not applicable
+      (actual and formal argument lists differ in length)
+    method SimpleArrayList.add(int) is not applicable
+      (actual argument Object cannot be converted to int by method invocation conversion)
+    method SimpleAbstractList.add(int,int) is not applicable
+      (actual and formal argument lists differ in length)
+    method SimpleAbstractList.add(int) is not applicable
+      (actual argument Object cannot be converted to int by method invocation conversion)
+1 error
+
+Solution: Convert Integer to int; didn’t work (error: iter.previous returns Object not Integer);
+	use (int) before iter.previous instead, works.

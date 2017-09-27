@@ -1,0 +1,51 @@
+1.
+Errors like:
+Square.java:58: error: cannot find symbol
+    public boolean addFrog(Frog f)
+                           ^
+  symbol:   class Frog
+  location: class Square
+
+Solution:
+Order the makefile correctly with Creature.class first so it can be compiled firstly.
+
+2.
+Exception in thread "main" java.lang.StringIndexOutOfBoundsException: String index out of range: 0
+	at java.lang.String.charAt(String.java:658)
+	at World.<init>(World.java:125)
+	at World.main(World.java:223)
+
+Solution:
+Read the first line file as a string then convert it to integer instead of simply reading the integer. 
+
+3.
+Can't show the squares when running the code.
+Exception in thread "AWT-EventQueue-0" java.lang.NullPointerException
+
+Solution:
+(Prof.Weaver) Didn't initialize the fly in the World.java's nested loop.
+
+4.
+error: non-static method gameOver(boolean) cannot be referenced from a static context
+
+Solution:
+Uses “gameOver(boolean)” instead of “World.gameOver(boolean)” (Helped by tutor).
+
+5.
+Having trouble with the array frogs: tried to add the Frog objects but returned “null”. I think it is the reason why I can’t move the frogs in the update method (even though one of the frogs does move and eats).
+
+Solution:
+1)Tried to set “this.frogs = frogs” hoping it can be read in update method. Didn’t work (Maybe due to the null items in the array)
+2)take the counter of frogs out of the nested loop, works.
+
+6.
+The resetPosition method didn’t work.
+
+Solution:
+Reorder the codes and checking the safety of the fly again if the location is reset. 
+
+7.
+Sometimes the fly can be eaten but sometimes it can’t.
+
+Solution:
+Reorder the codes to put the check(eatsFly) in the correct place.

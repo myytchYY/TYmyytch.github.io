@@ -1,0 +1,8 @@
+1. Trying to find a more efficient way to do the carpet using loops to find the other 12 points
+No solution
+
+2. Don't know how to ask java take a sentence with spaces as a single command-line argument. 
+Solution: Google out to use “[^a-zA-Z\\s]”.
+
+3. Sierpinski works for level 0 & 1 but messed up when level is greater than 1.
+Solution: (helped by Chris) change the calculation of points (concern closely about the corner points’ locations).

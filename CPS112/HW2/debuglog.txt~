@@ -1,0 +1,19 @@
+1.
+Errors like:
+Square.java:58: error: cannot find symbol
+    public boolean addFrog(Frog f)
+                           ^
+  symbol:   class Frog
+  location: class Square
+
+Solution:
+Order the makefile correctly with Creature.class first so it can be compiled firstly.
+
+2.
+Exception in thread "main" java.lang.StringIndexOutOfBoundsException: String index out of range: 0
+	at java.lang.String.charAt(String.java:658)
+	at World.<init>(World.java:125)
+	at World.main(World.java:223)
+
+Solution:
+Read the first line file as a string then convert it to integer instead of simply reading the integer. 

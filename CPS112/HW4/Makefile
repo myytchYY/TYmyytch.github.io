@@ -1,0 +1,22 @@
+JUNIT=.:/usr/share/java/junit4.jar:/usr/share/java/hamcrest-core-1.3.jar
+
+all: ArrayBackedList.class SimpleAbstractList.class SimpleArrayList.class TestList.class
+
+ArrayBackedList.class: ArrayBackedList.java
+	javac ArrayBackedList.java
+
+SimpleAbstractList.class: SimpleAbstractList.java
+	javac SimpleAbstractList.java
+
+SimpleArrayList.class: SimpleAbstractList.class
+	javac SimpleArrayList.java
+
+TestList.class: SimpleAbstractList.class SimpleArrayList.class
+	javac -classpath ${JUNIT} TestList.java
+
+test: TestList.class
+	java -classpath ${JUNIT} TestList
+
+clean:
+	rm *.class
+	rm *.java~

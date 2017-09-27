@@ -1,0 +1,8 @@
+all: Dice.class ComputeGrade.class
+Dice.class: Dice.java
+	javac Dice.java
+ComputeGrade.class: ComputeGrade.java
+	javac ComputeGrade.java
+clean:
+	rm -f *.class
+	rm -f *.*~
