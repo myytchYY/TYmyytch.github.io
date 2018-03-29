@@ -1,0 +1,142 @@
+---
+title: "Casterbridge Bank Case"
+author: 'Group 2-07: Tabitha Timm, Jesin Wan, Tianchu Ye, Spencer Zaghikian'
+date: "December 1, 2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## (a)
+Hire the quantity of analysts that will maximise contributions to earnings.\
+
+
+## (b)
+Tom took the average retention rate and average demand from April to December to calculate the number of analysts to hire each year.  The advantage of this method is its efficiency and simplicity.  However, the downfall of this method is that it doesn't take monthly fluctuations in demand, retention, and yearly economic changes into account and allows space for deficits and surpluses in the number of analysts that creates higher costs.\
+
+
+##(c)
+Susan created a demand model based on historical monthly averages and factored in with unanticipated economic growth for the year and included noise for both variables. Additionally, Susan performed a similar analysis to model the number of analysts employed in a given month, in which she took into account the number of offers made to analysts to start in a given month, the acceptance rate of those offers, the firm's retention rate, and the noise in that rate. While Tom was anticipating hiring in only one month, Susan considered the possibility of sending offers in multiple months to manage fluctuations in demand for analysts.\
+One strength of Susan's model is that she modeled each random step, which should lead to an increase in accuracy and understanding of the overall process. Weaknesses of the model are the quantity of assumptions Susan had to make and the model's complexity.  Another weakness is that Susan's cost function is built on another assumption based on perceptions about analyst's efficiency.\
+
+
+##(d)
+```{r,include=F}
+H0 <- c(105,95,75,70,70,110,105,90,65,
+        80,90,120,105,95,75)
+P0 <- 63
+numoffers <- function(H0,Q0,P0){
+##Model of Demand of Analysts
+H <- H0
+X <- rnorm(1,0,.05)
+Y <- rnorm(1,0,0.1)
+D <- H*(1+X)*(1+Y)
+##Model of Supply of Analysts
+Q <- rep(0,12)
+Q[3] <- Q0 #Jun
+P <- rep(0,12)
+P[1] <- P0 #Apr
+#Retention rate (starting Apr)
+R <- c(runif(1,.9,1),runif(4,.95,1),
+       runif(1,.8,1),runif(3,.9,1),
+        runif(1,.8,1),runif(2,.9,1))
+#A <- rep(0, 12)
+for(i in 1:11){
+  A <- rbinom(1,Q[i+1],0.7)
+  P[i+1] <- P[i]*R[i] +A}
+#print(A)
+
+MonthlyCost <- 6000
+ContributionA <- 4000
+ineff_of_trans <- .6
+MonthCostTransfer <- 9600
+ContributionT <- 400
+##Calculations of Earnings Conribution
+E<- c()
+round(D)
+round(P)
+for (i in 1:12){
+  if (P[i]>D[i])
+  {E[i] = 10000*D[i]-6000*P[i]}
+  if (P[i]<D[i])
+  {E[i] = ContributionA*P[i]+ContributionT *(D[i]-P[i])}
+  if(P[i]==D[i])
+  {E[i] = ContributionA*P[i]}
+}
+return(E)
+}
+output <- rep(0,100)
+for (j in 1:100){
+  sumE <- rep(0,100)
+  for (i in 1:100){
+  E_ <- numoffers(H0,10+i,P0)
+  sumE[i] <- sum(E_)}
+  output[j]<- 10+which.max(sumE)}
+```
+```{r}
+hist(output)
+(maxEarning_d <- max(sumE))
+(optimaloffers_d<- round(mean(output)))
+TomsEarning <- sum(numoffers(H0,98,P0))
+for (i in 1:50){
+TomsEarning <- sum(numoffers(H0,98,P0))+TomsEarning}
+(TomsEarning/50)
+```
+
+
+##(e)
+```{r, include = F}
+numoffers_flex <- function(H0,Q0,P0){
+  ##Model of Demand of Analysts
+  H <- H0
+  X <- rnorm(1,0,.05)
+  Y <- rnorm(1,0,0.1)
+  D <- H*(1+X)*(1+Y)
+  ##Model of Supply of Analysts
+  Q <- rep(0,12)
+  Q[3] <- round(.5*Q0) #Jun
+  Q[6] <- round((Q0 - Q[3])*runif(1,.7,1)) #Sep
+  P <- rep(0,12)
+  P[1] <- P0 #Apr
+  #Retention rate (starting Apr)
+  R <- c(runif(1,.9,1),runif(4,.95,1),
+         runif(1,.8,1),runif(3,.9,1),
+         runif(1,.8,1),runif(2,.9,1))
+  for(i in 1:11){
+    A <- rbinom(1,Q[i+1],0.7)
+    P[i+1] <- P[i]*R[i] + A}
+  
+  MonthlyCost <- 6000
+  ContributionA <- 4000
+  ineff_of_trans <- .6
+  MonthCostTransfer <- 9600
+  ContributionT <- 400
+  ##Calculations of Earnings Conribution
+  E<- c()
+  round(P)
+  round(D)
+  for (i in 1:12){
+    if ((P[i])>D[i])
+    {E[i] = 10000*D[i]-6000*P[i]}
+    if (P[i]<D[i])
+    {E[i] = ContributionA*P[i]+ContributionT *(D[i]-P[i])}
+    if(P[i]==D[i])
+    {E[i] = ContributionA*P[i]}
+  }
+  return(E)
+}
+output2 <- rep(0,50)
+for (j in 1:50){
+  sumE <- rep(0,10)
+  for (i in 1:10){
+    E_ <- numoffers_flex(H0,10+10*i,P0)
+    sumE[i] <- sum(E_)}
+  output2[j]<- 10+10*which.max(sumE)}
+```
+
+```{r}
+hist(output2)
+(maxEarning_e <- max(sumE))
+(optimaloffers_e<- round(mean(output2)))
+```

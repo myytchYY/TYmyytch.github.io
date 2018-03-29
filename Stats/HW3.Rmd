@@ -1,0 +1,53 @@
+---
+title: "HW3_Stats" 
+author: "Tianchu Ye (Section 2)"
+date: "November 17, 2017"
+output: pdf_document  
+
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 4.15
+*Given:* $E = .03$, $c = 2.576$
+$$ n = \frac{c^2}{4\times E^2} = \frac{2.576^2}{4\times .0009} \approx 1843$$
+```{r}
+qnorm(.995)
+qnorm(.995)^2/(4*.03^2)
+
+```
+
+## 4.17
+*Given:* $n_1 = 100,n_2 = 80$; $\bar{x}_1 = \$ 41.25,s_1 = \$24.25$; $\bar{x}_2 = \$45.75, s_2 = \$34.76.$\
+(a) For 95%, $c = 1.96.$ Then we have\
+$CI_{\mu_1} = \bar{x}_1 \pm c\times\frac{s_1}{\sqrt{n_1}}\approx \$41.25 \pm \$4.75 = [\$36.5,\$46.0]$,\
+$CI_{\mu_2} = \bar{x}_2 \pm c\times\frac{s_2}{\sqrt{n_2}}\approx \$45.75 \pm \$7.62= [\$38.13,\$53.37]$.\
+(b) $CI_{\bar{x}_1-\bar{x}_2} = (\bar{x}_2-\bar{x}_1) \pm c\times\sqrt{s_1^2/n_1+s_2^2/n_2} \approx  -\$4.5 \pm \$8.98 = [-\$13.48,\$4.48]$
+```{r}
+qnorm(.975)
+1.96*24.25/sqrt(100)
+1.96*34.76/sqrt(80)
+1.96*sqrt(24.25^2/100+34.76^2/80)
+```
+
+## 4.18
+(a) *Given:* $n =20$(small), $\bar{x} = 8.1, s = 3.9, c = 2.86$\
+$CI_{\mu} = \bar{x} \pm c \times \frac{s}{\sqrt{n-1}} = 8.1 \pm 2.5 = [5.6, 10.6]$ unoccupied seats per flight.\
+(b) *Given:* $n = 80,\bar{x} = 15.5min, s = 6.7min, c = 1.96$\
+$CI_{\mu} = \bar{x} \pm c \times \frac{s}{\sqrt{n}} = 15.5min \pm 1.5min = [14.0min, 17.0min]$\
+(c) *Given:* $E = 1$, $c = 2.576$\
+$$n = \frac{c^2\cdot s^2}{1^2} \approx 298$$
+(d) *Given:* $\hat{p} = 60/80 = .75, \hat{q} = 1-\hat{p} = .25, c = 1.96$\
+$$CI_p = \hat{p} \pm c\times \sqrt{\frac{\hat{p}\hat{q}}{n}} = .75 \pm .098 = [0.652,0.848]$$
+(e) *Given:* $E = .02, c = 1.96$\
+$$ n = \frac{c^2}{4\times E^2} = 2401$$
+```{r}
+qt(.995,df = 20-1)
+2.86*3.9/sqrt(20)
+qnorm(.995)
+2.575^2*6.7^2/1
+qnorm(.975)
+```

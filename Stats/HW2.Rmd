@@ -1,0 +1,62 @@
+---
+title: "Hw2_Stats"
+author: "Tianchu Ye (Section2)"
+date: "October 19, 2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Web Analytics
+**1**\
+1.1  $P(4\leq X \leq 6) = P(X=4) + P(X=5)+P(X=6) = 0.37$\
+1.2\
+$\mu_{X} = \sum_{i= 0}^{6}P(X = i)x_i = 0 +0.09 + 2 \cdot0.24 + 3\cdot0.27 + 4\cdot0.25 + 5\cdot.09 + 6\cdot0.03 = 3.01$\
+$\sigma_X^2 = \frac{1}{n}\sum_{i = 0}^{n}(P(X=x_i)-\mu)^2\cdot x_i \approx 1.75$\
+$\sigma_X = \sqrt{\sigma_X^2} \approx 1.32$\
+
+
+**2**\
+2.1  A visitor will only visit the site once during each hour and each visitor is unrelated to others, so every visitor (trail) is independent. \newline
+2.2  $n$ is the total number of visitor we examed for the test, for the last question, $n = 11$. $p$ is the probability that the visitor is a student, here we are given $p =0.68$.\newline
+2.3  $P(7) = \frac{11!}{(11-7)!\cdot7!}\cdot0.68^7 \cdot (1-.68)^{11-7} \approx 0.23$\newline
+2.4\
+$\mu_X = np = 11 \cdot0.68 = 7.48$ \
+$\sigma_X = \sqrt{np(1-p)} = \sqrt{11\cdot 0.68\cdot(1-.68)} \approx 1.55$\
+
+
+**3**\
+3.1  $P(8) = \frac{20!}{(20-8)!\cdot8!}\cdot0.38^8 \cdot (1-.38)^{20-8} \approx 0.18$ \newline
+3.2  Assume $X$ is the event when the customer is "desktop" customer, then $p = 1-.38 =0.62$. In this case,$$P(12\leq X \leq 14) = P(X=14) +P(X=13)+P(X=14) \approx0.50$$
+3.3  Keep the assumption in 2), then we have $$P(X\leq3) = \sum_{i = 0}^{3} P(X = i)\approx 2.16 \cdot 10^{-5}$$
+
+##A game of chance
+4.1  Let $A$ be the event that the correct answer is (a) and $B$ be the event that the correct answer is (b). Also, let $a$ be the event that the friend will suggest (a) to be the answer and $b$ be the friend suggesting (b). Knowing that $P(A) =0.6$, $P(B) = 1- P(A) = 0.4$, and $P(a|A) = P(b|B) =0.8$, we can calculate $P(a|B) = 1 - P(b|B) =0.2$. Therefore,  
+$$P(a) = P(A) \cdot P(a|A) + P(B) \cdot P(a|B) =0.56$$\
+4.2  $P(b) = 1 - P(a) =0.44$ \newline
+4.3  Choose to call a friend for help, $E(prize)_{max} = \$ 806,400$. \
+**Reason:**
+
++ Givcen the facts, when answering question by self, since we know (a) has a higher posibility to be the right answer, we will choose to answer (a). Therefore, we have $P(correct) = P(A) =0.6$, and $E(prize,self) = 0.6\cdot\$1,000,000 + (1-0.6) \cdot\$32,000 = \$612,800$. \ 
+
++ When asking firend for help, $P(correct) = P(a\cap A) + P(b\cap B) = P(a|A)\cdot P(A) + P(b|B)\cdot P(B) =0.8$.Then, $E(prize,call) =0.8 \cdot \$1,000,000 + (1-0.8) \cdot \$ 32,000 = \$ 806,400$. \ 
+
++ The last case, if I just walk away, $E(prize,leave) = \$500,00$\  
+
++ Since $E(prize,call) > E(prize,self)>E(prize,leave)$, we choose to call friend.  
+
+##Healthcare analytics
+5.1 Assume that $A$ represents that the person has the disease, and $B$ represents that the person is diagnoses as he/she has the disease. We are given $P(\bar{B}|A) =0.06$, $P(\bar{B}|\bar{A}) =0.91$ \newline
+Then we have $$P(B|A) = 1 - P(\bar{B}|A) =0.94$$.\newline
+5.2 This is a binomial distribution question with $n =3$, $p = P(B|\bar{A}) = 1- P(\bar{B}|\bar{A}) =0.09$. Thus, $$P(X\geq 1) = 1- P(X= 0) \approx0.25$$
+5.3 Here we are given $P(A)=.17$, so $P(\bar{A}) = 1- P(A) =0.83$. We can also calculate $P(B|\bar{A}) = 1 - P(\bar{B}|\bar{A}) =0.09$.\
+Thus, $$P(A|B) =\frac{P(B|A)P(A)}{P(B|A)P(A)+P(B|\bar{A})P(\bar{A})}= \frac{0.94 \cdot0.17}{0.94\cdot 0.17 +0.09\cdot 0.83}\approx0.68$$
+
+##Airline analytics
+6.1 $p = 1-.2=.8$, so $P(X\leq 5) = Binomcdf(11,.8,5) \approx0.01$ \newline
+6.2 $P(X=10) = Binompdf(11,.8,10) \approx0.24$\newline
+6.3 $E_{profit} = \sum_{i = 0}^{10}P(X=x_i)\cdot x_i\cdot\$1,200 + P(X=11)\cdot\$9,000 \approx \$10,199.22$\
+6.4 $E_{profit} = \sum_{i = 0}^{10}P(X=x_i)\cdot x_i\cdot\$1,200\approx \$9,600$\
+6.5 Yes, it will. Usually people will plan the trip in unit of groups, so each person is not individual doing the decision whether to show up or not. 

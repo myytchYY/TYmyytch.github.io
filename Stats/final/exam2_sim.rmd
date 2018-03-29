@@ -1,0 +1,237 @@
+---
+title: "exam2_sim"
+author: "Tianchu Ye"
+date: "December 9, 2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Setup
+
+For more accurate result, each simulation will run for 10000 (nsim) times. The self-defined function is to calculate the mode of sets.\
+
+```{r}
+rm(list = ls())
+options(warn=-1) 
+nsim <- 10000
+mode <- function(list){
+  myhist <- hist.default(list,plot = FALSE)
+  return(myhist$breaks[which.max(myhist$density)+1])} 
+```
+
+# Drugs
+```{r}
+price = 3.7; OnetimeCost = 16; CapCost = 0.4; ProdCost = 0.2; t = 10
+```
+
+##1.
+Below is the simulation for the problem. The **suggested capacity level is 50K.**\
+
+```{r}
+capacity <- c(30,35,40,45,50,55,60)*1000
+ExpProfit <- matrix(ncol = length(capacity), nrow = nsim)
+for (r in 1:nsim){
+  profit <- rep(0,length(capacity))
+  demand <- round(rnorm(t,50000,12000))
+  for (i in 1:length(capacity)){
+    my_capacity <- capacity[i]
+    produce <- min(c(demand[1],my_capacity))
+    profit_ <- produce*(price - ProdCost) - my_capacity*(OnetimeCost+CapCost) 
+    for (j in 2:t){
+      produce <- min(c(demand[j],my_capacity))
+      profit_ <- profit_+ produce*(price - ProdCost) - my_capacity*CapCost}
+    profit[i] <- profit_
+    ExpProfit[r,i] <- profit_}
+}
+MeanExpProfit <- c()
+for (i in 1:length(capacity)){
+  MeanExpProfit[i] <- mean(ExpProfit[,i])}
+maximized <- capacity[which.max(MeanExpProfit)]
+paste("The suggested capacity level is",maximized)
+```
+The Plot:\
+```{r}
+plot(capacity,MeanExpProfit,main = "Capacity vs 10-year Profit")
+abline(v = maximized,lty = 2)
+```
+##2.
+Here, I ran another set of simulation with the chosen capacity level and the confidential interval of 95% is printed out in the end.\
+
+```{r}
+totalProfit <- rep(0,nsim)
+for (r in 1:nsim){
+  demand <- round(rnorm(t,50000,12000))
+  produce <- min(c(demand[1],maximized))
+  profit_ <- produce *(price - ProdCost) - maximized*(CapCost + OnetimeCost)
+  for (j in 2:t){
+      produce <- min(c(demand[j],maximized))
+      profit_ <- profit_+ produce*(price - ProdCost) -  maximized*CapCost}
+  totalProfit[r] = profit_}
+#The 95% condifential interval for profit is:
+(quantile(totalProfit,c(0.025,0.975)))
+```
+
+# Warranty
+
+```{r}
+device_cost = 100; t2 = 6
+```
+
+**The Simulation(s)**
+
+```{r}
+numOwned <- c(); Paid <- c()
+for (r in 1:nsim){
+  PaidDevice = 1 ; nsamp = 50 
+  brokeTime <- rgamma(nsamp,2,0.5)
+  for (t in 1:nsamp){
+    if(sum(brokeTime[1:t])>=t2){break}}
+  myTime <- brokeTime[1:t]; PaidDevice = length(myTime[myTime>1])
+  numOwned[r] <- t; Paid[r] <- PaidDevice}
+```
+
+##3.
+```{r}
+CostPlot <- Paid * device_cost
+# round mean cost to nearest 100 due to integer device number
+myCost <- round(mean(CostPlot)/device_cost)*device_cost 
+paste("My total cost is", myCost)
+```
+##4.
+```{r}
+inWarrantyPlot <- round(numOwned-Paid)
+inWarranty <- round(mean(inWarrantyPlot))
+paste("Number of failures during the warranty period is",inWarranty)
+```
+
+##5.
+```{r}
+MeanOwned <- round(mean(numOwned))
+paste("Number of devices owned during 6-year period is", MeanOwned)
+```
+Plots for Question 3,4,5:\
+```{r}
+par(mfrow = c(3,1))
+hist(CostPlot,main = "Total Cost")
+hist(inWarrantyPlot,main = "Failures in Warranty period (1 yr)");
+hist(numOwned,main = "Owned Device(s)")
+par(mfrow = c(1,1))
+```
+
+# Clearance
+##6.
+```{r}
+Day <- rep(0,nsim);n_samp <- 100
+for (r in 1:nsim){
+Arrivals <- sample(x=0:4, size=n_samp, prob=c(.15,.25,.3,.2,.1), replace=TRUE)
+#Given Information
+pNotbuy <- 1-.6 #denoted as 0
+pTop <- 0.6*0.4 #denoted as 1
+pRegular <- .6*.35  #denoted as 2
+pExtra <- .6*.25  #denoted as 3
+machineAmounts <- c(5,4,3)
+#Generate Demand for each coming customer
+Demand <- sample(x = 0:3, size = n_samp,prob = c(pNotbuy,pTop,pRegular,pExtra),
+                 replace = TRUE)
+#"-1" denotes that the customer actually buys a machine;
+#"0" means no demand or desired machine is sold out.
+for (nppl in 1:n_samp){
+  if (sum(machineAmounts) == 0){break}
+  for (c in 1:3){if (Demand[nppl] == c){
+      if(machineAmounts[c]>0)
+        {Demand[nppl] <- -1; machineAmounts[c]<- machineAmounts[c]-1}
+      else{Demand[nppl] =0}}}}
+for(day in 1:n_samp){if(sum(Arrivals[1:day])>=nppl){break}}
+Day[r] <- day}
+hist(Day,main = "Selling Days",breaks = 30) #larger breaks for more details
+```
+The histogram shows that the distribution is skewed to right. Therefore, the result is chosen as the mode value of set "Day" using self-defined function mode() in set-up section.\
+**My answer:**
+```{r}
+result3 <- mode(Day)
+paste("It will take WTF", result3,"days to sell all 12 washers (mode chosen).")
+paste("The mean value for Selling Days is rounded as",round(mean(Day)))
+```
+
+#Waiting Room
+
+##7.
+$$SampleMean = \frac{\Sigma sample}{n}$$
+$$Sample S.D = \sqrt{\frac{\Sigma(t-\bar{t})^2}{n-1}}$$
+
+```{r}
+SampleTime <- c(8,12,26,10,23,21,16,22,18,17,36,9)
+paste("The sample mean is", round(mean(SampleTime),digits = 2))
+a <- sum((SampleTime - mean(SampleTime))^2)/(length(SampleTime)-1)
+paste("The sample standard deviation is", round(sqrt(a),digits = 2))
+```
+##8.
+The confidence interval is: 
+$$ \bar{x} \pm \frac{c\times s}{\sqrt{n}}$$
+After calculation, my answer is:
+$$18.17 \pm 7.27 = [-4.17,10.38]$$
+```{r,include=FALSE}
+c = qt(.995,df = 12-1)
+num = c*sqrt(a)/sqrt(12)
+(c-num); (c+num)
+```
+
+##9.
+SUggested sample size is:
+$$ n = \frac{c_{99\%}^2\times s^2}{E^2} \approx 79$$
+```{r,include=FALSE}
+round(c^2*a/(8))
+```
+
+# Scenarios
+##10. 
+Use time series to predict the trends and then pick the top ones.
+
+
+#MultiChoice
+##11. c) Heteroscedasticity
+
+##12. c) density plot
+
+##13. b) lag
+
+##14. c) B(500,0.08)
+
+##15. c) pbinom(50,500,.08,lower.tail = F)
+
+##16. d) 40
+
+##17. d) 7
+
+# *1693 Corp.*
+
+##18.
+Approximately 2%.\
+```{r}
+round(pnorm(460,mean = 480, sd = 10,lower.tail = T),digits = 2)
+```
+
+##19.
+$$\mu_{2X} = \mu_1 + \mu_2 = 920 grams$$
+$$\sigma_{2X} = \sqrt{\sigma_1^2+\sigma_2^2 + 2\cdot\sigma\cdot \sigma_1 \cdot_2 CORR(X_1,X_2)} \approx 18.81grams$$
+```{r,include = F}
+sqrt(10^2+10^2+2*10*10*0.77)
+```
+
+##20.
+$$2X = N(920,18.81)$$
+$$P(2X < 920) = 0.5$$
+The probability is 50%.\
+```{r,include = F}
+round(pnorm(960,mean = 960, sd = 18.81,lower.tail = T),digits = 2)
+```
+##21.
+The suggested $\mu$ is 477.
+```{r}
+for (mu in 450:500){
+if(pnorm(460,mu,10,lower.tail = FALSE) >= .95){break}}
+mu
+```
