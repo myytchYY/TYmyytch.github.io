@@ -1,0 +1,5 @@
+library('pracma')
+A<- read.csv("p3.csv")
+A <- data.matrix(A)
+ans<- rref(A)
+(maxFlow <- ans[1,ncol(ans)])

@@ -1,0 +1,105 @@
+---
+title: "Write-up (p10)"
+author: "Tianchu Ye"
+date: "December 13, 2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##1.
+
+file(s): p1.xlsx (sheet name "p1")\
+In the excel file, there are two sheets: p1 and p2(k=2). p1 contains the solver model for problem 1, the Chocolate pipeline network max-flow problem.\
+The cells with green background (B25:C25) is the objective function value. Cells with yellow background, C5:C22, are my variables. Cells with red background are my constraints. For the max flow, there are mainly two constraints:\
+1. $f_{i\ in} = f_{i\ out}$ for $i \in [1,8]$\
+2. $f_{ij} \leq c_{ij}$ for $i,j \in [1,8]$\
+After setting up my solver, the objective function value I get is:\
+max_flow $= \Sigma f_{1\ out} = \Sigma f_{8\ in} = 28$\
+
+The detailed flow is:\
+
+```{r}
+From<- c(1,1,2,2,3,3,3,4,4,4,5,5,5,6,6,6,7,7)
+To<- c(2,3,4,5,4,6,7,3,5,7,2,6,8,5,7,8,6,8)
+Flow<- c(13,15,3,10,0,15,3,3,0,0,0,0,10,0,7,8,0,10)
+cbind(From,To,Flow)
+```
+
+##2.
+
+file(s): p2.R, draft in p1.xlsx (sheet "p2(k=2)")\
+Because I was having trouble with the maxFlowFordFulkerson() which doesn't work properly in this sensitive analysis, I use graph.max flow() from package igraph instead.\
+
+According to the output, the max flow stopped increasing after k>3, and it peaks at k = 3 (limit) where $maxFlow_{max}$ = 62.\
+
+
+##3.(Extra Credit)
+
+file(s): p3_extra.R; p3.csv\
+
+I first tried to create the matrix in R directly. However, because it's hard to format or check, it in R, I then uses Excel to create the matrix instead (with headers so it's easy to follow). Then, I read the matrix from csv into R to run the rref() function. The result is same.\
+
+
+##4.
+
+file(s): p4.R\
+Lessons learnt: To use dbWriteTable(), the data frame need to have the same colnames as the table in mySQL do -- call dbListFields(). In the function, it's important to call "append = T" and "row.names = F" so that no new columns will be created and the existed table can be called correctly.\
+
+
+##5.
+
+file(s): p5.xlsx\
+The optimal plan is:\
+
+```{r}
+store<- c(0,1,2,3); dc<- c(0,3,3,1)
+cbind(store,dc)
+```
+
+The objective function value is in cell K18, \$190,282.78.\
+
+There are two columns of desired variables:\
+1. In column E is the plan from the amount shipped from each combination of dcs and stores;\
+2. In column F is the binary variables indicating whether the dc will ship products to the store. "0" means there's no shipment and "1" means that the dc is assigned to the store for shipment.\
+
+Red cells are the constraints for capacity, requirements (demand) and the rule that each store is assigned to one and only one dc.\
+
+And the objective value is \$190,282.78 which is the sum of the two costs below:\ 
+1. The fix cost is $\$200 \times \Sigma D_i$ where $D_i$ is the demand for each store. In this sample, it's \$ 122,000 in total;\
+2. The cost for each mile traveled is $\$ 0.75\times \sum d_{ij} \cdot a_{ij}$ where $a_{ij}$ is the amount shipped from dc $i$ to store $j$.\
+
+
+##6.
+
+file(s): p6.R\
+
+Using the same small data set. Uses loops to read data from mySQL instead of typing in manually in order to make p7 easier.\
+
+
+##7.
+
+file(s): p7.R\
+
+Taking the code from p6, I
+changed some numDC and numStore to 10 and 1100 as well as deleted the "where" condition part in the string for mySQL queries.\
+
+
+##8.
+
+file(s): tye01.sql\
+
+Exported from mySQL.\
+
+
+##9.
+
+file(s): p9.xlsx\
+
+For the new conditional cost, I'll add a new column, determining whether the distance between a dc and a store is large than 150 miles:
+$$f_{ij} = \lceil \frac{d - 150}{d} \rceil$$
+In the function, i is the dc_id and j is the store_id, when $d$<=150, $\frac{d-150}{d} \in (-1,0]$ which will make $f_{ij} = 0$; when $d$>150, $\frac{d-150}{d} \in (0,1)$ which will make $f_{ij} = 1.$ Then, when calculating the new cost, we have:
+$$\$250 \times \Sigma f_{ij} \times a_{ij}$$
+The optimal plan results in \$84,000 for this extra cost in cell M16. The optimal doesn't change comparing to p5, and the reason may be that the sample data size is too small. The total cost is \$274,282.78.
