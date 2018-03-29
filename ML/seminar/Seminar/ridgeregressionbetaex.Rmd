@@ -1,0 +1,68 @@
+
+Load Data and Install Packages
+```{r}
+data <- read.csv("applications.train.csv")
+installIfAbsentAndLoad <- function(neededVector) {
+  for(thispackage in neededVector) {
+    if( ! require(thispackage, character.only = T) )
+    { install.packages(thispackage)}
+    require(thispackage, character.only = T)
+  }
+}
+needed <- c("leaps", "ISLR", "glmnet")  
+installIfAbsentAndLoad(needed)
+```
+
+Create 100 samples of B1 with Linear Regression
+```{r}
+n <- 100
+linearbetavals <- rep(1:n)
+for(i in 1:n){
+  choose <- sample(c(1:nrow(data)), 25)
+  data.sample <- data[choose,]
+  linearmodel <- lm(Applications ~., data = data.sample)
+  linearbetavals[i] <- linearmodel$coefficients[2]
+}
+d <- density(linearbetavals)
+#plot(d, col = 'red')
+```
+
+
+Create 100 samples of B1 with Ridge Regression
+
+```{r}
+ridgebetavals <- rep(1:n)
+for(i in 1:n){
+  x <- model.matrix(Applications ~ ., data = data)[, -1]     #We omit the intercept
+  y <- data$Applications
+  train <- sample(1:nrow(data), 25)
+  cv <- cv.glmnet(x[train,],y[train],alpha=0)
+  bestlam <- cv$lambda.min
+  apps <- glmnet(x,y,alpha=0)
+  coeffs <- predict(apps,type="coefficients",s=bestlam)[1:17,]
+  ridgebetavals[i] <- coeffs[2]
+}
+density <- density(ridgebetavals)
+#plot(density, col = 'blue')
+```
+
+Plot Both Ridge and LM on Same Graph
+
+```{r}
+plot(range(min(d$x), max(d$x)), range(0, max(density$y)), type = "n", xlab = "B1 Val",
+ylab = "Density")
+lines(d, col = "red")
+lines(density, col = "blue")
+legend(min(d$x), max(density$y), legend=c("LR", "RR"), col=c("red", "blue"), lty = 1:1, cex=0.8)
+
+```
+
+Compare Means and SD's
+
+```{r}
+mean <- c(mean(ridgebetavals), mean(linearbetavals))
+sd <- c(sd(ridgebetavals), sd(linearbetavals))
+type <- factor(c('ridgereg', 'linreg'))
+data.frame(type = type, mean = mean, sd = sd)
+```
+

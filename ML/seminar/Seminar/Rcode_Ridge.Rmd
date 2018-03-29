@@ -1,0 +1,191 @@
+---
+title: "Ridge Regression Lab"
+author: "Group 2-07"
+output: beamer_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r,include=FALSE}
+options(warn=-1)   # Supress warning messages
+installIfAbsentAndLoad <- function(neededVector) {
+  for(thispackage in neededVector) {
+    if( ! require(thispackage, character.only = T) )
+    { install.packages(thispackage)}
+    require(thispackage, character.only = T)
+  }
+}
+
+needed <- c("ISLR", "glmnet")  
+installIfAbsentAndLoad(needed)
+```
+
+
+## Dataset Hitters (from ISLR)
+
+- Hitters is a dataset with 263 observations of 20 variables. Here, we take the last variable, salary, as our response and the other 19 variables as predictors. 
+
+```{r}
+library("ISLR", "glmnet")
+Hitters <- na.omit(Hitters)
+x <- model.matrix(Salary ~ ., Hitters)[, -1]
+y <- Hitters$Salary
+```
+
+- Split the sample by 50/50:
+
+```{r}
+set.seed(1)
+train <- sample(nrow(x), nrow(x)/2)
+test <- -train
+y.test <- y[test]
+```
+
+## glmnet()
+
+- $x$ & $y$\
+- elasticnet mixing parameter $\frac{1-\alpha}{2}||\beta||_2^2+\alpha||\beta||_1$ where $\alpha \in [0,1]$\
+($\alpha = 0$ for Ridge; $\alpha = 1$ for Lasso)\
+```{r}
+ridge.mod <- glmnet(x,y,alpha=0)
+```
+
+- Note that the *glmnet()* function standardizes the variables so that they are on the same scale. To turn off this default setting, use the argument **standardize=FALSE**.\
+
+
+## Choose $\lambda$ by cross-validation
+
+- By default the function performs 10-fold cross-validation, though this can be changed using the argument $n$folds. 
+- the *lambda.min* is the lambda that gives *min(MSE - length(lambda))*
+```{r}
+set.seed(1)
+cv.out <- cv.glmnet(x[train,],y[train],alpha=0)
+bestlam <- cv.out$lambda.min
+bestlam
+```
+
+## Plot of cv.out
+
+```{r}
+plot(cv.out)
+```
+
+## Final Ridge Regression Model
+
+```{r}
+ridge.pred <- predict(ridge.mod,s=bestlam,newx=x[test,])
+predict(ridge.mod,type="coefficients",s=bestlam)[1:20,]
+```
+- Ridge regression does **not** perform variable selection!
+
+## Benefit to performing ridge regression with bestlam
+ 
+```{r}
+ridge.train <- glmnet(x[train,],y[train],alpha = 0)
+```
+ 
+- Remember that when $\lambda = 0,$ we are not doing shrinkage regression but least square regression.
+
+```{r}
+ridge.pred <- predict(ridge.train,s=0,newx=x[test,],
+                      x=x[train,],y=y[train])
+#mean((ridge.pred-y.test)^2)
+```
+
+- With bestlam
+```{r}
+ridge.pred <- predict(ridge.train,s=bestlam,newx=x[test,],
+                      x=x[train,],y=y[train])
+#mean((ridge.pred-y.test)^2)
+```
+
+
+## cont.
+
+- In general, if we want to fit a (unpenalized) least squares model, then we should use the lm() function, since that function provides more useful outputs, such as standard errors and p-values for the coefficients.\
+
+coef(lm(y~x, subset=train))\
+predict(ridge.mod,s=0,exact=T,type="coefficients",x=x[train,],y=y[train])[1:20,]
+
+
+## Comparing different $\lambda$ and their l2 norm
+
+```{r,include=F}
+lambda <- c()
+l2 <- c()
+for (i in 1:50){
+  lambda[i] <- ridge.mod$lambda[i]
+  l2[i]<-sqrt(sum(coef(ridge.mod)[-1,i]^2))
+}
+```
+```{r}
+plot(lambda,l2)
+```
+
+## What's the difference between coefficients?
+
+```{r}
+lambda_large<- coef(ridge.mod)[,1]
+lambda_small<- coef(ridge.mod)[,50]
+cbind(lambda_large,lambda_small)
+```
+
+## Another example in classification
+- Setting up
+```{r}
+yclass <- rep("Yes", length(y))
+yclass[y < median(y)] <- "No"
+yclass <- factor(yclass)
+yclass.test <- yclass[test]
+```
+
+- Use Logistic Regression to compare coefficients\
+Recall glm() uses **family="binomial"**, and call **type = "response"** in predict();\
+coef_glm <- logistic.mod.class$coefficients\
+
+```{r, include= FALSE}
+train.df <- data.frame(x[train,], "Salary"=yclass[train])
+test.df <- data.frame(x[test,], "Salary"=yclass[test])
+logistic.mod.class <- glm(Salary ~ ., data=train.df, family="binomial")
+logistic.pred.class <- predict(logistic.mod.class,newdata = test.df, type="response")
+yhat <- rep("Yes", length(logistic.pred.class))
+yhat[logistic.pred.class < .5] <- "No"
+error.rate.logistic <- mean(yhat != as.character(yclass.test))
+coef_glm <- logistic.mod.class$coefficients
+```
+
+## Ridge regression (classification)
+
+- Again, override family as binomial in both glmnet() and cv.glmnet()
+```{r}
+ridge.mod.class <- glmnet(x, yclass, alpha=0,
+                          family="binomial")
+cv.out.class <- cv.glmnet(x[train, ], yclass[train],
+                          alpha=0, family="binomial")
+bestlam <- cv.out.class$lambda.min
+ridge.pred.class <- predict(ridge.mod.class, s=bestlam,
+                            newx=x[test, ], type="class")
+error.rate.ridge <- mean(ridge.pred.class != yclass.test)
+ridge.coefficients <- predict(ridge.mod.class, 
+                              type="coefficients",
+                              s=bestlam)[1:20, ]
+```
+## Plot for cv.out.class
+
+```{r}
+plot(cv.out.class)
+```
+
+## Comparison 
+
+- Error rate
+```{r}
+cbind(error.rate.logistic,error.rate.ridge)
+```
+- Coefficients
+```{r}
+cbind(coef_glm,ridge.coefficients)
+```
